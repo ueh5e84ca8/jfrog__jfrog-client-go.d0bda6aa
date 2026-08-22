@@ -108,7 +108,7 @@ func (rw *ContentWriter) run() {
 	var err error
 	if !rw.useStdout {
 		defer func() {
-			if err = errors.Join(err, rw.outputFile.Close()); err != nil {
+			if err = errors.Join(err, rw.outputFile.Sync(), rw.outputFile.Close()); err != nil {
 				rw.errorsQueue.AddError(errorutils.CheckError(err))
 			}
 		}()
@@ -127,13 +127,13 @@ func (rw *ContentWriter) run() {
 	enc := json.NewEncoder(buf)
 	enc.SetIndent("    ", "  ")
 	recordPrefix := "\n    "
-	firstRecord := false
+	firstRecord := true
 	for record := range rw.dataChannel {
 		buf.Reset()
 		err = enc.Encode(record)
 		if err != nil {
 			rw.errorsQueue.AddError(errorutils.CheckError(err))
-			return
+			continue
 		}
 		recordString := recordPrefix + string(bytes.TrimRight(buf.Bytes(), "\n"))
 		_, err = rw.outputFile.WriteString(recordString)
@@ -151,7 +151,7 @@ func (rw *ContentWriter) run() {
 	}
 	closeString += jsonArraySuffix
 	if rw.isCompleteFile {
-		closeString += "}"
+		closeString += "}\n"
 	}
 	_, err = rw.outputFile.WriteString(closeString)
 	if err != nil {
