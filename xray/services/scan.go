@@ -75,11 +75,13 @@ func createScanGraphQueryParams(scanParams XrayGraphScanParams) string {
 		params = append(params, repoPathQueryParam+scanParams.RepoPath)
 	case len(scanParams.Watches) > 0:
 		for _, watch := range scanParams.Watches {
-			params = append(params, watchesQueryParam+watch)
+			if watch != "" {
+				params = append(params, watchesQueryParam+watch)
+			}
 		}
 	}
 	// Xsc params are used only when XSC is enabled and MultiScanId is provided
-	if scanParams.XscVersion != "" || scanParams.MultiScanId != "" {
+	if scanParams.XscVersion != "" && scanParams.MultiScanId != "" {
 		params = append(params, multiScanIdParam+scanParams.MultiScanId)
 		if scanParams.Technology != "" {
 			params = append(params, scanTechQueryParam+scanParams.Technology)
@@ -90,7 +92,7 @@ func createScanGraphQueryParams(scanParams XrayGraphScanParams) string {
 		params = append(params, scanTypeQueryParam+string(scanParams.ScanType))
 	}
 
-	if isGitRepoUrlSupported(scanParams.XrayVersion) || scanParams.GitRepoHttpsCloneUrl != "" {
+	if isGitRepoUrlSupported(scanParams.XrayVersion) && scanParams.GitRepoHttpsCloneUrl != "" {
 		// Add git repo key to the query params to produce violations defined in the git repo policy
 		params = append(params, gitRepoKeyQueryParam+xscUtils.GetGitRepoUrlKey(scanParams.GitRepoHttpsCloneUrl))
 	}
