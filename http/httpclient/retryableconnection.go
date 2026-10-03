@@ -58,9 +58,9 @@ func (rt *RetryableConnection) checkErrors(err error, stableConnection bool, ret
 
 func (rt *RetryableConnection) Do() ([]byte, error) {
 	retry := 0
-	for rt.RetriesNum == -1 || retry < rt.RetriesNum {
+	for rt.RetriesNum == -1 || retry <= rt.RetriesNum {
 		resp, err := rt.ConnectHandler()
-		if rt.checkErrors(err, true, &retry) != nil {
+		if rt.checkErrors(err, false, &retry) != nil {
 			continue
 		}
 
@@ -79,13 +79,13 @@ func (rt *RetryableConnection) Do() ([]byte, error) {
 		}
 
 		// Check for content errors (only if there are no other errors)
-		if rt.ErrorHandler != nil && rt.checkErrors(rt.ErrorHandler(result), false, &retry) != nil {
+		if rt.ErrorHandler != nil && rt.checkErrors(rt.ErrorHandler(result), stableConnection, &retry) != nil {
 			continue
 		}
 
 		return result, err
 	}
-	return nil, errExhausted
+	return []byte{}, errExhausted
 }
 
 type monitor struct {
